@@ -67,7 +67,24 @@ export function useCustomFetch() {
     [cache]
   )
 
-  return { fetchWithCache, fetchWithoutCache, clearCache, clearCacheByEndpoint, loading }
+  const clearCacheByKey = useCallback(
+    (key: string) => {
+      if (cache?.current === undefined) {
+        return
+      }
+      cache.current.delete(key)
+    },
+    [cache]
+  )
+
+  return {
+    fetchWithCache,
+    fetchWithoutCache,
+    clearCache,
+    clearCacheByEndpoint,
+    clearCacheByKey,
+    loading,
+  }
 }
 
 function getCacheKey(endpoint: RegisteredEndpoints, params?: object) {
