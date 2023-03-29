@@ -18,6 +18,7 @@ export function usePaginatedTransactions(): PaginatedTransactionsResult {
     )
 
     setPaginatedTransactions((previousResponse) => {
+      // todo: add check for 
       if (response === null || previousResponse === null) {
         return response
       }

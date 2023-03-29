@@ -22,7 +22,7 @@ export function useTransactionsByEmployee(): TransactionsByEmployeeResult {
   )
 
   const invalidateData = useCallback(() => {
-    setTransactionsByEmployee(null)
+     setTransactionsByEmployee(null)
   }, [])
 
   return { data: transactionsByEmployee, loading, fetchById, invalidateData }
