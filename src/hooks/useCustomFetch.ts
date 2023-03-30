@@ -4,7 +4,7 @@ import { fakeFetch, RegisteredEndpoints } from "../utils/fetch"
 import { useWrappedRequest } from "./useWrappedRequest"
 
 export function useCustomFetch() {
-  const { cache } = useContext(AppContext)
+  const { cache, currentTransactionRequest } = useContext(AppContext)
   const { loading, wrappedRequest } = useWrappedRequest()
 
   const fetchWithCache = useCallback(
@@ -12,7 +12,12 @@ export function useCustomFetch() {
       endpoint: RegisteredEndpoints,
       params?: TParams
     ): Promise<TData | null> =>
-      wrappedRequest<TData>(async () => {
+      wrappedRequest<TData | null>(async () => {
+        if (currentTransactionRequest) {
+          currentTransactionRequest.current = currentTransactionRequest.current += 1
+        }
+        const current = currentTransactionRequest?.current
+
         const cacheKey = getCacheKey(endpoint, params)
         const cacheResponse = cache?.current.get(cacheKey)
 
@@ -23,9 +28,18 @@ export function useCustomFetch() {
 
         const result = await fakeFetch<TData>(endpoint, params)
         cache?.current.set(cacheKey, JSON.stringify(result))
+
+        /* Return null to prevent fakeFetch result overriding 
+           transactions from cacheResponse if returned between 
+           fakeFetch invocation and its associated resolve. 
+        */
+        if (current !== currentTransactionRequest?.current && endpoint !== "employees") {
+          return null
+        }
+
         return result
       }),
-    [cache, wrappedRequest]
+    [cache, wrappedRequest, currentTransactionRequest]
   )
 
   const fetchWithoutCache = useCallback(
