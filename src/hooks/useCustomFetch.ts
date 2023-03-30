@@ -13,7 +13,7 @@ export function useCustomFetch() {
       params?: TParams
     ): Promise<TData | null> =>
       wrappedRequest<TData | null>(async () => {
-        if (currentTransactionRequest) {
+        if (currentTransactionRequest && endpoint !== "employees") {
           currentTransactionRequest.current = currentTransactionRequest.current += 1
         }
         const current = currentTransactionRequest?.current
@@ -33,7 +33,7 @@ export function useCustomFetch() {
            transactions from cacheResponse if returned between 
            fakeFetch invocation and its associated resolve. 
         */
-        if (current !== currentTransactionRequest?.current && endpoint !== "employees") {
+        if (current !== currentTransactionRequest?.current) {
           return null
         }
 
